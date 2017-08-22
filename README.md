@@ -9,6 +9,26 @@
 * [DWI Analysis](#dwi-analysis)
   * [Data Selection](#data-selection)
     * [selectSubjects.R](#script-selectsubjectsr)
+  * [Preprocessing](#preprocessing)
+    * [1: Prepare](#1-prepare)
+      * [prepare.sh](#script-preparesh)
+    * [2: Global Intensity Normalisation](#global-intensity-normalisation)
+      * [globalintensity.sh](#script-globalintensitysh)
+      * [normalise.sh](#script-normalisesh)
+    * [3: Estimate Response Function](#estimate-response-function)
+      * [responsefunction.sh](#script-responsefunctionsh)
+      * [average_responsefunction.sh](#script-average-responsefunctionsh)
+    * [4: Spherical Deconvolution](#spherical-deconvolution)
+      * [deconvolution.sh](#script-deconvolutionsh)
+    * [5: Create ROI Masks](#create-roi-masks)
+      * [rois.sh](#script-roissh)
+  * [Tractography](#tractography)
+    * [Global Tractography](#global-tractography)
+      * [globaltractography.sh](#script-globaltractographysh)
+    * [Local Tractography](#local-tractography)
+      * [localtractography.sh](#script-localtractographysh)
+* [fMRI Analysis](#fmri-analysis)
+* [DCM Analysis](#dcm-analysis)
 
 # About
 ### The Project
@@ -58,7 +78,7 @@ Output:
 * subsetlist.txt
   * A list of a subset of 60 of the above subjects to be used in generating the population template for global intensity normalisation. Note that this subset will change randomly each time the script is run.
 
-## Data Preprocessing
+## Preprocessing
 The following steps were designed in accordance with the MRTrix3 [ISMRM tutorial](https://mrtrix.readthedocs.io/en/latest/quantitative_structural_connectivity/ismrm_hcp_tutorial.html) for reconstructing connectomes using HCP data. 
 
 ### 1: Prepare
@@ -138,6 +158,8 @@ Output:
 ### 4: Spherical Deconvolution
 Conduct multi-shell, multi-tissue (msmt) constrained spherical deconvolution (CSD).
 
+#### Script: deconvolution.sh
+
 Input:
 * average_WM.txt
 * average_GM.txt
@@ -151,7 +173,7 @@ Output:
 * 999999_CSF.mif
 * 999999_tissueRGB.mif
 
-### 5: ROIs
+### 5: Create ROI Masks
 Warp MNI masks for the left/right superior colliculus, pulvinar, and amygdala into native T1 space then native diffusion space.
 
 The amygdala mask was retrieved from the Havard-Oxford subcortical atlas at a threshold of 50% probability. The pulvinar clusters were supplied by 
@@ -166,6 +188,8 @@ Steps:
 2. Create transformation files for each subject from diffusion to T1 to MNI and in reverse
 3. Warp the MNI masks in to native diffusion and T1 space
 4. Superior colliculus and pulvinar are spatially very close together, so remove any overlap as a result of the warping
+
+#### Script: rois.sh
 
 Input:
 * 999999_nDWI.mif
