@@ -180,3 +180,35 @@ Output:
 * 999999_t1-2-dif.mat
 
 ## Tractography
+### Global Tractography
+#### Script: globaltractography.sh
+Input:
+*Subject data*:
+* nDWI_999999.mif
+* nodif_brain_mask_fillh_999999.nii.gz
+*Group average response functions*:
+* average_WM.txt
+* average_CSF.txt
+* average_GM.txt
+*ROIs in native diffusion space*: left/right SC, PUL, AMY
+
+Output:
+*Whole brain global tractograms*:
+* global_FOD_999999.mif
+* global_fiso_999999.mif
+* global_999999.tck
+*Edited ROI-specific tracks*: left/right SC-PUL, PUL-AMY for whole pulvinar and clusters 1-5
+
+### Local Tractography
+#### Script: localtractography.sh
+Input:
+*Subject data*:
+* 5TT_999999.mif
+* WM_FODs_999999.mif
+*ROIs in native diffusion space*: left/right SC, PUL, AMY
+
+Output:
+*Edited ROI-specific tracks*: left/right SC-PUL, PUL-AMY for whole pulvinar and clusters 1-5
+* Done for both seeding directions (e.g. SC-PUL, PUL-SC)
+* Done for both cropping at ends (i.e. streamlines terminating at white/grey matter boundaries) and without cropping ("no ends")
+* SIFT2 weights saved as text files
