@@ -6,6 +6,9 @@
   * [The Project](#the-project)
   * [The Data](#the-data)
   * [The Scripts](#the-scripts)
+* [DWI Analysis](#dwi-analysis)
+  * [Data Selection](#data-selection)
+    * [selectSubjects.R](#script-selectsubjectsr)
 
 # About
 ### The Project
@@ -30,7 +33,7 @@ The scripts include R, Matlab, and Unix Shell code. The following toolboxes were
 
 The scripts are organised by numbered processing stages. Within the top folder is a script where you can update your file paths in all scripts within the subdirectories.
 
-# Diffusion Weighted Imaging Analysis
+# DWI Analysis
 Note that an example subject code of "99999" will be used in all filenames (instead of a real code, such as 100307).
 
 ## Data Selection
