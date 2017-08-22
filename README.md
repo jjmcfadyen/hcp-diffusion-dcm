@@ -1,6 +1,12 @@
 # HCP Diffusion DCM Experiment
 ---
 
+## Table of Contents
+* [About](#about)
+  * [The Project](#the-project)
+  * [The Data](#the-data)
+  * [The Scripts](#the-scripts)
+
 # About
 ### The Project
 This project is the second experiment for my PhD at the Queensland Brain Institute in collaboration with my supervisors Dr Marta Garrido and Professor Jason Mattingley.
@@ -24,7 +30,7 @@ The scripts include R, Matlab, and Unix Shell code. The following toolboxes were
 
 The scripts are organised by numbered processing stages. Within the top folder is a script where you can update your file paths in all scripts within the subdirectories.
 
-# Analysis Steps
+# Diffusion Weighted Imaging Analysis
 Note that an example subject code of "99999" will be used in all filenames (instead of a real code, such as 100307).
 
 ## Data Selection
@@ -199,6 +205,8 @@ Output:
 * global_999999.tck
 *Edited ROI-specific tracks*: left/right SC-PUL, PUL-AMY for whole pulvinar and clusters 1-5
 
+#### Script: [SUM STREAMLINE COUNTS]
+
 ### Local Tractography
 #### Script: localtractography.sh
 Input:
@@ -212,3 +220,21 @@ Output:
 * Done for both seeding directions (e.g. SC-PUL, PUL-SC)
 * Done for both cropping at ends (i.e. streamlines terminating at white/grey matter boundaries) and without cropping ("no ends")
 * SIFT2 weights saved as text files
+
+#### Script: [SUM STREAMLINE COUNTS]
+
+#### Script: [SUM SIFT2 WEIGHTS]
+
+# fMRI Analysis
+[WHAT WAS THE AIM OF THIS ANALYSIS STAGE?]
+[EXPLAIN THE TASK AND THE NATURE OF THE DATA]
+
+## Image preprocessing and First Level Analysis
+The fMRI data was minimally preprocessed by HCP [INSERT LINKS]. [REFER TO FRISTON STUDY THAT WE MODELLED THIS ANALYSIS OFF].
+
+#### Script: analyseFMRI.m
+
+
+
+# DCM Analysis
+[WHAT WAS THE AIM OF THIS ANALYSIS STAGE?]
