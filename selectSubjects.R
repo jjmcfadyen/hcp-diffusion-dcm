@@ -23,4 +23,8 @@ d <- filter(d,
             Oxycontin == "false"
 )
 
-write.table(d$Subject,"subjectlist.txt", row.names = FALSE, col.names = FALSE)
+write.table(d$Subject, "subjectlist.txt", row.names = FALSE, col.names = FALSE)
+
+# Select a subset of 60 participants to be used in generating a population template
+subset <- sample_n(d,60)
+write.table(subset$Subject, "subsetlist.txt", row.names = FALSE, col.names = FALSE)
