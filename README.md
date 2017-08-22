@@ -35,18 +35,18 @@ The script also chooses a random subset of 60 participants to be used for genera
 #### Script: selectSubjects.R
 
 Input:
-1. unrestricted.csv
+* unrestricted.csv
 
   * Provided by [HCP Connectome DB](https://db.humanconnectome.org) under WU-Minn HCP Data - 900 Subjects > Resources > Quick Downloads > Behavioral Data
 
-2. restricted.csv
+* restricted.csv
 
   * Provided by [HCP Connectome DB](https://db.humanconnectome.org) under WU-Minn HCP Data - 900 Subjects after being granted restricted access and selecting Current Project as "Restricted" using the drop-down menu at the top of the screen. The file can then be accessed from Resources > Quick Downloads > Restricted Data
 
 Output:
-1. subjectlist.txt
+* subjectlist.txt
   * A list of all the subjects in the S900 HCP release that satisfied our selection criteria. In numerical order from lowest to highest.
-2. subsetlist.txt
+* subsetlist.txt
   * A list of a subset of 60 of the above subjects to be used in generating the population template for global intensity normalisation. Note that this subset will change randomly each time the script is run.
 
 ## Data Preprocessing
@@ -67,11 +67,11 @@ Input: Located in the HCP subject's file structure under: 999999/T1w/Diffusion
 * nodif_brain_mask.nii.gz
 
 Output
-1. 999999_nodif_brain_mask_fillh.nii.gz (non-diffusion-weighted brain mask with no holes)
-2. 999999_DWI.mif (diffusion images in MRTRix3 format)
-3. 999999_cDWI.mif (bias-corrected diffusion images)
-4. 999999_DT.mif (diffusion tensor image)
-5. 999999_FA.mif (fractional anisotropy image)
+* 999999_nodif_brain_mask_fillh.nii.gz (non-diffusion-weighted brain mask with no holes)
+* 999999_DWI.mif (diffusion images in MRTRix3 format)
+* 999999_cDWI.mif (bias-corrected diffusion images)
+* 999999_DT.mif (diffusion tensor image)
+* 999999_FA.mif (fractional anisotropy image)
 
 ### 2: Global Intensity Normalisation
 #### Script: globalintensity.sh
@@ -81,23 +81,23 @@ Steps
 2. Conduct global intensity normalisation using subset
 
 Input
-1. cDWI.mif x 60 subset participants
-2. nodif_brain_mask_fillh.nii.gz x 60 subset participants
+* cDWI.mif x 60 subset participants
+* nodif_brain_mask_fillh.nii.gz x 60 subset participants
 
 Output
-1. FA_template.mif
-2. WM_mask.mif
+* FA_template.mif
+* WM_mask.mif
 
 #### Script: normalise.sh
 
 Input:
-1. 999999_FA.mif
-2. 999999_nodif_brain_mask_fillh.nii.gz
-3. WM_mask.mif
-4. FA_template.mif
+* 999999_FA.mif
+* 999999_nodif_brain_mask_fillh.nii.gz
+* WM_mask.mif
+* FA_template.mif
 
 Output:
-1. 999999_nDWI.mif
+* 999999_nDWI.mif
   * Normalised diffusion weighted image
 
 ### 3: Estimate Response Function
@@ -107,38 +107,76 @@ Steps:
 2. Calculate response function using multi-shell multi-tissue (msmt) algorithm
 
 Input:
-1. aparc+aseg.nii.gz
+* aparc+aseg.nii.gz
   * This file should be located in the HCP data structure under 999999/T1w
-2. 999999_nDWI.mif
+* 999999_nDWI.mif
 
 Output:
-1. 999999_RF_WM.txt
-2. 999999_RF_GM.txt
-3. 999999_RF_CSF.txt
-4. 999999_RF_voxels.mif
+* 999999_RF_WM.txt
+* 999999_RF_GM.txt
+* 999999_RF_CSF.txt
+* 999999_RF_voxels.mif
 
 #### Script: average_responsefunction.sh
 Input:
-1. RF_WM, RF_GM, and RF_CSF text files for all subjects
+* RF_WM, RF_GM, and RF_CSF text files for all subjects
 
 Output:
-1. average_RF_WM.txt
-2. average_RF_GM.txt
-3. average_RF_CSF.txt
+* average_RF_WM.txt
+* average_RF_GM.txt
+* average_RF_CSF.txt
 
 ### 4: Spherical Deconvolution
 Conduct multi-shell, multi-tissue (msmt) constrained spherical deconvolution (CSD).
 
 Input:
-1. average_WM.txt
-2. average_GM.txt
-3. average_CSF.txt
-4. 999999_nodif_brain_mask_fillh.nii.gz
-5. 999999_nDWI.mif
+* average_WM.txt
+* average_GM.txt
+* average_CSF.txt
+* 999999_nodif_brain_mask_fillh.nii.gz
+* 999999_nDWI.mif
 
 Output:
-1. 999999_WM_FODs.mif
-2. 999999_GM.mif
-3. 999999_CSF.mif
-4. 999999_tissueRGB.mif
+* 999999_WM_FODs.mif
+* 999999_GM.mif
+* 999999_CSF.mif
+* 999999_tissueRGB.mif
 
+### 5: ROIs
+Warp MNI masks for the left/right superior colliculus, pulvinar, and amygdala into native T1 space then native diffusion space.
+
+The amygdala mask was retrieved from the Havard-Oxford subcortical atlas at a threshold of 50% probability. The pulvinar clusters were supplied by 
+Daniel Baron from the following publication:
+
+Barron, D. S., Eickhoff, S. B., Clos, M., & Fox, P. T. (2015). Human pulvinar functional organization and connectivity. Human brain mapping, 36(7), 2417-2431.
+
+The clusters were merged together in FSL and gaps between the clusters were filled in manually. The superior colliculi were manually hand-drawn with reference to anatomical atlases.
+
+Steps:
+1. Save MNI masks for left/right superior colliculi, pulvinar, and amygdala according to the above
+2. Create transformation files for each subject from diffusion to T1 to MNI and in reverse
+3. Warp the MNI masks in to native diffusion and T1 space
+4. Superior colliculus and pulvinar are spatially very close together, so remove any overlap as a result of the warping
+
+Input:
+* 999999_nDWI.mif
+* T1w_acpc_dc_restore_brain.nii.gz
+  * This file should be located in the HCP data structure under 999999/T1w
+
+Output:
+
+*Transformed images*:
+* 999999_meanb0.mif
+* 999999_meanb0_brain_flirted.mif
+* 999999_t1_brain_flirted.mif
+* 999999_MNI-2-t1_warped.nii.gz
+* 999999_t1-2-dif_warped.nii.gz
+
+*Transformation files*:
+* 999999_dif-2-t1
+* 999999_t1-2-std.mat
+* 999999_t1-2-std.warp
+* 999999_std-2-t1.mat
+* 999999_t1-2-dif.mat
+
+## Tractography
