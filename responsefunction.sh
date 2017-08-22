@@ -13,11 +13,11 @@ cd ${dir_subject}
 #printf "\n ---------------GENERATE 5TT---------------"
 #printf "\n ------------------------------------------"
 
-time 5ttgen freesurfer -force -sgm_amyg_hipp -nthreads 4 -verbose -nocrop -lut $FREESURFER_HOME/FreeSurferColorLUT.txt -tempdir ${dir_tmp} aparc+aseg.nii.gz 999999_5TT.mif
+time 5ttgen freesurfer -force -sgm_amyg_hipp -nthreads 4 -verbose -nocrop -lut $FREESURFER_HOME/FreeSurferColorLUT.txt -tempdir ${dir_tmp} aparc+aseg.nii.gz 5TT_${subject}.mif
 echo "5TT.mif created for ${subject}!"
 
 printf "\n ------------------------------------------"
 printf "\n ----------GENERATE NORMALISED RF----------"
 printf "\n ------------------------------------------"
-time dwi2response msmt_5tt 999999_nDWI.mif 999999_5TT.mif 999999_RF_WM.txt 999999_RF_GM.txt 999999_RF_CSF.txt -voxels 999999_RF_voxels.mif -force -tempdir ${dir_tmp} -nthreads 4
+time dwi2response msmt_5tt nDWI_${subject}.mif 5TT_${subject}.mif RF_WM_${subject}.txt RF_GM_${subject}.txt RF_CSF_${subject}.txt -voxels RF_voxels_${subject}.mif -force -tempdir ${dir_tmp} -nthreads 4
 echo "Response functions generated for ${subject}!"
