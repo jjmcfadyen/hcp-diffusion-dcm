@@ -13,8 +13,8 @@ echo "[Copying DWI & Brain Mask files...]"
 for subject in $subjects; do
 	cd ${dir_subjects}/${subject}
 	echo "[... cp ${subject}]"
-	cp cDWI.mif ${dir_DWI}/${subject}_cDWI.mif
-	cp nodif_brain_mask_fillh.nii.gz ${dir_BM}/${subject}_nodif_brain_mask_fillh.nii.gz
+	cp cDWI.mif ${dir_DWI}/cDWI_${subject}.mif
+	cp nodif_brain_mask_fillh.nii.gz ${dir_BM}/nodif_brain_mask_fillh_${subject}.nii.gz
 done
 
 echo "[Running global intensity normalisation across subjects...]"
