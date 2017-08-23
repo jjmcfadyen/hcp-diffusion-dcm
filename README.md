@@ -25,8 +25,12 @@
   * [Tractography](#tractography)
     * [Global Tractography](#global-tractography)
       * [globaltractography.sh](#script-globaltractographysh)
+      * [sumGlobal.sh](#script-sumglobalsh)
     * [Local Tractography](#local-tractography)
       * [localtractography.sh](#script-localtractographysh)
+      * [printStats.sh](#script-printstatssh)
+      * [collateData.m](#script-collatedatam)
+      * [sumWeights.sh](#script-sumweightssh)
 * [fMRI Analysis](#fmri-analysis)
 * [DCM Analysis](#dcm-analysis)
 
@@ -64,25 +68,25 @@ The script also chooses a random subset of 60 participants to be used for genera
 #### Script: selectSubjects.R
 
 Input:
-* unrestricted.csv
+* `unrestricted.csv`
 
   * Provided by [HCP Connectome DB](https://db.humanconnectome.org) under WU-Minn HCP Data - 900 Subjects > Resources > Quick Downloads > Behavioral Data
 
-* restricted.csv
+* `restricted.csv`
 
   * Provided by [HCP Connectome DB](https://db.humanconnectome.org) under WU-Minn HCP Data - 900 Subjects after being granted restricted access and selecting Current Project as "Restricted" using the drop-down menu at the top of the screen. The file can then be accessed from Resources > Quick Downloads > Restricted Data
 
 Output:
-* subjectlist.txt
+* `subjectlist.txt`
   * A list of all the subjects in the S900 HCP release that satisfied our selection criteria. In numerical order from lowest to highest.
-* subsetlist.txt
+* `subsetlist.txt`
   * A list of a subset of 60 of the above subjects to be used in generating the population template for global intensity normalisation. Note that this subset will change randomly each time the script is run.
 
 ## Preprocessing
 The following steps were designed in accordance with the MRTrix3 [ISMRM tutorial](https://mrtrix.readthedocs.io/en/latest/quantitative_structural_connectivity/ismrm_hcp_tutorial.html) for reconstructing connectomes using HCP data. 
 
 ### 1: Prepare
-#### Script: prepare.sh
+#### Script: `prepare.sh`
 
 Steps
 1. Fills any holes in the non-b0-weighted brain masks (that may lead to errors)
@@ -90,88 +94,87 @@ Steps
 3. Computes diffusion tensors and fractional anisotropy (FA) images
 
 Input: Located in the HCP subject's file structure under: 999999/T1w/Diffusion
-* data.nii.gz
-* bvals
-* bvecs
-* nodif_brain_mask.nii.gz
+* `data.nii.gz`
+* `bvals`
+* `bvecs`
+* `nodif_brain_mask.nii.gz`
 
 Output
-* 999999_nodif_brain_mask_fillh.nii.gz (non-diffusion-weighted brain mask with no holes)
-* 999999_DWI.mif (diffusion images in MRTRix3 format)
-* 999999_cDWI.mif (bias-corrected diffusion images)
-* 999999_DT.mif (diffusion tensor image)
-* 999999_FA.mif (fractional anisotropy image)
+* `999999_nodif_brain_mask_fillh.nii.gz` (non-diffusion-weighted brain mask with no holes)
+* `999999_DWI.mif` (diffusion images in MRTRix3 format)
+* `999999_cDWI.mif` (bias-corrected diffusion images)
+* `999999_DT.mif` (diffusion tensor image)
+* `999999_FA.mif` (fractional anisotropy image)
 
 ### 2: Global Intensity Normalisation
-#### Script: globalintensity.sh
+#### Script: `globalintensity.sh`
 
 Steps
 1. Copy cDWI.mif and nodif_brain_mask_fillh.nii.gz files for subset participants to designated folder
 2. Conduct global intensity normalisation using subset
 
 Input
-* cDWI.mif x 60 subset participants
-* nodif_brain_mask_fillh.nii.gz x 60 subset participants
+* `cDWI.mif` x 60 subset participants
+* `nodif_brain_mask_fillh.nii.gz` x 60 subset participants
 
 Output
-* FA_template.mif
-* WM_mask.mif
+* `FA_template.mif`
+* `WM_mask.mif`
 
-#### Script: normalise.sh
+#### Script: `normalise.sh`
 
 Input:
-* 999999_FA.mif
-* 999999_nodif_brain_mask_fillh.nii.gz
-* WM_mask.mif
-* FA_template.mif
+* `999999_FA.mif`
+* `999999_nodif_brain_mask_fillh.nii.gz`
+* `WM_mask.mif`
+* `FA_template.mif`
 
 Output:
-* 999999_nDWI.mif
-  * Normalised diffusion weighted image
+* `999999_nDWI.mif` (normalised diffusion weighted image)
 
 ### 3: Estimate Response Function
-#### Script: responsefunction.sh
+#### Script: `responsefunction.sh`
 Steps:
 1. Generate 5TT (five tissue type) image using freesurfer output provided by HCP
 2. Calculate response function using multi-shell multi-tissue (msmt) algorithm
 
 Input:
-* aparc+aseg.nii.gz
+* `aparc+aseg.nii.gz`
   * This file should be located in the HCP data structure under 999999/T1w
-* 999999_nDWI.mif
+* `999999_nDWI.mif`
 
 Output:
-* 999999_RF_WM.txt
-* 999999_RF_GM.txt
-* 999999_RF_CSF.txt
-* 999999_RF_voxels.mif
+* `999999_RF_WM.txt`
+* `999999_RF_GM.txt`
+* `999999_RF_CSF.txt`
+* `999999_RF_voxels.mif`
 
-#### Script: average_responsefunction.sh
+#### Script: `average_responsefunction.sh`
 Input:
 * RF_WM, RF_GM, and RF_CSF text files for all subjects
 
 Output:
-* average_RF_WM.txt
-* average_RF_GM.txt
-* average_RF_CSF.txt
+* `average_RF_WM.txt`
+* `average_RF_GM.txt`
+* `average_RF_CSF.txt`
 
 ### 4: Spherical Deconvolution
 Conduct multi-shell, multi-tissue (msmt) constrained spherical deconvolution (CSD).
 
-#### Script: deconvolution.sh
+#### Script: `deconvolution.sh`
 
 Input:
-* average_WM.txt
-* average_GM.txt
-* average_CSF.txt
-* 999999_nodif_brain_mask_fillh.nii.gz
-* 999999_nDWI.mif
+* `average_WM.txt`
+* `average_GM.txt`
+* `average_CSF.txt`
+* `999999_nodif_brain_mask_fillh.nii.gz`
+* `999999_nDWI.mif`
 
 Output:
-* 999999_WM_FODs.mif
-* 999999_GM.mif
-* 999999_CSF.mif
-* 999999_tissueRGB.mif
+* `999999_WM_FODs.mif`
+* `999999_GM.mif`
+* `999999_CSF.mif`
+* `999999_tissueRGB.mif`
 
 ### 5: Create ROI Masks
 Warp MNI masks for the left/right superior colliculus, pulvinar, and amygdala into native T1 space then native diffusion space.
@@ -189,79 +192,93 @@ Steps:
 3. Warp the MNI masks in to native diffusion and T1 space
 4. Superior colliculus and pulvinar are spatially very close together, so remove any overlap as a result of the warping
 
-#### Script: rois.sh
+#### Script: `rois.sh`
 
 Input:
-* 999999_nDWI.mif
-* T1w_acpc_dc_restore_brain.nii.gz
+* `999999_nDWI.mif`
+* `T1w_acpc_dc_restore_brain.nii.gz`
   * This file should be located in the HCP data structure under 999999/T1w
 
 Output:
 
 *Transformed images*:
-* 999999_meanb0.mif
-* 999999_meanb0_brain_flirted.mif
-* 999999_t1_brain_flirted.mif
-* 999999_MNI-2-t1_warped.nii.gz
-* 999999_t1-2-dif_warped.nii.gz
+* `999999_meanb0.mif`
+* `999999_meanb0_brain_flirted.mif`
+* `999999_t1_brain_flirted.mif`
+* `999999_MNI-2-t1_warped.nii.gz`
+* `999999_t1-2-dif_warped.nii.gz`
 
 *Transformation files*:
-* 999999_dif-2-t1
-* 999999_t1-2-std.mat
-* 999999_t1-2-std.warp
-* 999999_std-2-t1.mat
-* 999999_t1-2-dif.mat
+* `999999_dif-2-t1`
+* `999999_t1-2-std.mat`
+* `999999_t1-2-std.warp`
+* `999999_std-2-t1.mat`
+* `999999_t1-2-dif.mat`
 
 ## Tractography
 ### Global Tractography
-#### Script: globaltractography.sh
+#### Script: `globaltractography.sh`
 Input:
 *Subject data*:
-* nDWI_999999.mif
-* nodif_brain_mask_fillh_999999.nii.gz
+* `nDWI_999999.mif`
+* `nodif_brain_mask_fillh_999999.nii.gz`
 *Group average response functions*:
-* average_WM.txt
-* average_CSF.txt
-* average_GM.txt
+* `average_WM.txt`
+* `average_CSF.txt`
+* `average_GM.txt`
 *ROIs in native diffusion space*: left/right SC, PUL, AMY
 
 Output:
+
 *Whole brain global tractograms*:
-* global_FOD_999999.mif
-* global_fiso_999999.mif
-* global_999999.tck
+* `global_FOD_999999.mif`
+* `global_fiso_999999.mif`
+* `global_999999.tck`
+
 *Edited ROI-specific tracks*: left/right SC-PUL, PUL-AMY for whole pulvinar and clusters 1-5
 
-#### Script: [SUM STREAMLINE COUNTS]
+#### Script: `sumGlobal.sh`
+This script cycles through the edited global tracks and uses `tckinfo` to print out the count. It then saves this number to a text file. One text file per track type (e.g. `count_endsonly_SC-PUL_l.txt`), one row per subject (subject ID listed in first column).
 
 ### Local Tractography
-#### Script: localtractography.sh
+#### Script: `localtractography.sh`
 Input:
 *Subject data*:
-* 5TT_999999.mif
-* WM_FODs_999999.mif
+* `5TT_999999.mif`
+* `WM_FODs_999999.mif`
 *ROIs in native diffusion space*: left/right SC, PUL, AMY
 
 Output:
+
 *Edited ROI-specific tracks*: left/right SC-PUL, PUL-AMY for whole pulvinar and clusters 1-5
 * Done for both seeding directions (e.g. SC-PUL, PUL-SC)
 * Done for both cropping at ends (i.e. streamlines terminating at white/grey matter boundaries) and without cropping ("no ends")
 * SIFT2 weights saved as text files
 
-#### Script: [SUM STREAMLINE COUNTS]
+**Note that the null distribution estimates can be estimated using the scripts above, except adding `-algorithm NullDist2` after `tckgen`
 
-#### Script: [SUM SIFT2 WEIGHTS]
+#### Script: `printStats.sh`
+This script cycles through a series of .tck files and prints out the track statistics (given by `tckstats`): path length mean, median, SD, min, max, and count. It then saves these statistics in one file per track, where each row is a subject (first column indicates subject ID). These files are then used in `sumStreamlines.sh`.
+
+#### Script: `collateData.m`
+This script uses the textfile output of `printStats.sh` to give summary statistics of the streamline count and path length, including Matlab figures and XLS/CSV files.
+
+#### Script: `sumWeights.sh`
+This script reads the textfile output of SIFT2 run during the local tractography step. It simply reads the files per track/hemisphere/cluster and sums up the values. The output is a .mat file and/or a XLS/CSV file that can be put into a statistics program such as SPSS.
 
 # fMRI Analysis
-[WHAT WAS THE AIM OF THIS ANALYSIS STAGE?]
-[EXPLAIN THE TASK AND THE NATURE OF THE DATA]
+The aim of this stage was to map out task-related functional activity during a face viewing task, which the subcortical route to the amygdala should theoretically be active during. The resultant fMRI activation would then be entered into the final DCM analysis to get measures of effective connectivity to be related back to the diffusion imaging results.
+
+We used fMRI data from the "Emotion" task in the HCP battery. Full information about the task can be found in Appendix 6 of the S900 release manual, listed [here](https://www.humanconnectome.org/study/hcp-young-adult/document/900-subjects-data-release).
 
 ## Image preprocessing and First Level Analysis
-The fMRI data was minimally preprocessed by HCP [INSERT LINKS]. [REFER TO FRISTON STUDY THAT WE MODELLED THIS ANALYSIS OFF].
+We used the minimally processed data provided by HCP. Our processing approach closely followed that of [Hillebrandt et al. (2014)](10.1038/srep06240)  who also conducted DCM on a HCP task-related fMRI dataset. 
 
-#### Script: analyseFMRI.m
+#### Script: `analyseFMRI.m`
 
 
 
 # DCM Analysis
-[WHAT WAS THE AIM OF THIS ANALYSIS STAGE?]
+The aim of this stage was to investigate the probability of *a priori* defined neural networks (i.e. subcortical vs. cortical pathways to the amygdala). This served two purposes:
+1. To establish the probability of an *effective* subcortical connection
+2. To relate this statistically to the *structural* subcortical connection reconstructed using tractography, helping to elucidate whether the tractograms were functionally meaningful
