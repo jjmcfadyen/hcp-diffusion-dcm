@@ -1,9 +1,12 @@
-function X = analyseFMRI(subject)
-% subject = 100206 (string)
+function X = firstLevel(subject)
+% subject = 100206 (number)
+
+if ~ischar(subject)
+    subject = num2str(subject);
+end
 
 %% Directories
 
-dir_script = '/projects/ap66/uqjmcfad/HCP_SubcorticalRoute/Scripts/fMRI';
 dir_subjects = '/projects/ap66/uqjmcfad/HCP_SubcorticalRoute/Subjects/';
 dir_scratch = '/scratch/ap66/';
 dir_hcp = '/scratch/hcp/';
@@ -20,8 +23,10 @@ data_units = 'secs';
 TR = 0.72; % inter-scan interval (in seconds)
 TE = 0.0331; % echo time (in seconds)
 res = 16; % time-bins per scan
-onset = 1;
+onset = 1; % slice at which regressors are considered
 frames_per_run = 176;
+
+remove_last_block = 2; % 0 for no, 1 for yes, 2 for make most of all data
 
 spm('defaults','fmri');
 
@@ -47,7 +52,7 @@ for sess = 1:length(sessions)
     for f = 1:frames
         matlabbatch{1}.spm.spatial.smooth.data{f,1} = [foldername filename '.nii,' num2str(f)];
     end
-    matlabbatch{1}.spm.spatial.smooth.fwhm = [8 8 8];
+    matlabbatch{1}.spm.spatial.smooth.fwhm = smoothing;
     matlabbatch{1}.spm.spatial.smooth.dtype = 0;
     matlabbatch{1}.spm.spatial.smooth.im = 0;
     matlabbatch{1}.spm.spatial.smooth.prefix = 's';
@@ -62,10 +67,7 @@ end
 %% First Level - Normal GLM
 
 subj_dir = [dir_scratch subject '/'];
-spm_dir = [subj_dir 'GLM'];
-if ~exist(spm_dir)
-    mkdir(spm_dir);
-end
+spm_dir = [subj_dir 'GLM_Long'];
 spm_dir = [spm_dir '/'];
     
 disp(['[1ST LEVEL BATCH: ' subject ']']);
@@ -91,11 +93,18 @@ for sess = 1:length(sessions)
 
     events1 = load([sess_dir 'EVs/fear.txt']);
     events2 = load([sess_dir 'EVs/neut.txt']);
-
+    
+    if remove_last_block == 1
+        events1 = events1(1:2,:);
+        events2 = events2(1:2,:);
+    elseif remove_last_block == 2
+        events1(3,2) = events1(3,2)/2;
+    end
+    
     faces = 1;
     matlabbatch{1}.spm.stats.fmri_spec.sess(sess).cond(faces).name = 'Faces';
     matlabbatch{1}.spm.stats.fmri_spec.sess(sess).cond(faces).onset = events1(:,1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess(sess).cond(faces).duration = events1(1,2);
+    matlabbatch{1}.spm.stats.fmri_spec.sess(sess).cond(faces).duration = events1(:,2);
     matlabbatch{1}.spm.stats.fmri_spec.sess(sess).cond(faces).tmod = 0;
     matlabbatch{1}.spm.stats.fmri_spec.sess(sess).cond(faces).pmod = struct('name', {}, 'param', {}, 'poly', {});
     matlabbatch{1}.spm.stats.fmri_spec.sess(sess).cond(faces).orth = 0;
@@ -107,7 +116,7 @@ for sess = 1:length(sessions)
     matlabbatch{1}.spm.stats.fmri_spec.sess(sess).cond(shapes).tmod = 0;
     matlabbatch{1}.spm.stats.fmri_spec.sess(sess).cond(shapes).pmod = struct('name', {}, 'param', {}, 'poly', {});
     matlabbatch{1}.spm.stats.fmri_spec.sess(sess).cond(shapes).orth = 0;
-
+    
     matlabbatch{1}.spm.stats.fmri_spec.sess(sess).multi = {''};
     matlabbatch{1}.spm.stats.fmri_spec.sess(sess).regress = struct('name', {}, 'val', {});
 
@@ -154,5 +163,9 @@ tic;
 spm_jobman('initcfg');
 spm_jobman('run',matlabbatch);
 disp(['First-level GLM complete for ' filename '! Time = ' num2str(toc/60) 'mins']);
+
+X = ['First level processing complete for ' subject '!'];
+
+quit
 
 end
