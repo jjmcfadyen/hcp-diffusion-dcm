@@ -17,6 +17,8 @@ ROI_labels = {
                 'rAMY'
                 'lFG'
                 'rFG'
+                'lV1'
+                'rV1'
                         };
 
 % Check VOIs don't overlap
