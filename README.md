@@ -32,6 +32,12 @@
       * [collateData.m](#script-collatedatam)
       * [sumWeights.sh](#script-sumweightssh)
 * [fMRI Analysis](#fmri-analysis)
+  * [Image Preprocessing and First Level Analysis](#image-preprocessin-and-first-level-analysis)
+    * [firstLevel.m](#script-firstlevelm)
+  * [Second Level Analysis and VOIs](#second-level-analysis-and-vois)
+    * [secondLevel.m](#script-secondlevelm)
+    * [extractVOIs.m](#script-extractvoism)
+    * [checkVOIs.m](#script-checkvoism)
 * [DCM Analysis](#dcm-analysis)
 
 # About
@@ -271,12 +277,53 @@ The aim of this stage was to map out task-related functional activity during a f
 
 We used fMRI data from the "Emotion" task in the HCP battery. Full information about the task can be found in Appendix 6 of the S900 release manual, listed [here](https://www.humanconnectome.org/study/hcp-young-adult/document/900-subjects-data-release).
 
-## Image preprocessing and First Level Analysis
+## Image Preprocessing and First Level Analysis
 We used the minimally processed data provided by HCP. Our processing approach closely followed that of [Hillebrandt et al. (2014)](10.1038/srep06240)  who also conducted DCM on a HCP task-related fMRI dataset. 
 
-#### Script: `analyseFMRI.m`
+#### Script: `firstLevel.m`
+This script applies a 4 x 4 x 4mm smoothing to the preprocessed HCP images. It then runs a first-level SPM GLM analysis.
 
+Input:
+* `tfMRI_EMOTION_LR.nii.gz`
+* `tfMRI_EMOTION_RL.nii.gz`
+* `Movement_Regressors.txt`
+  * These files are located in the HCP file structure under `999999/MNINonLinear/Results/tfMRI_EMOTION_LR` or `RL`
+* `fear.txt` (onsets of face blocks)
+* `neut.txt` (onsets of shape blocks)
+  * These files are located in the above directory in the `EVs` subdirectory
+  * Note that the script ignores the last block of each condition because they were not equal (due to an HCP error, the last half of the faces block is missing).
+  
+Output:
+* `tfMRI_EMOTION_LR.nii.gz` (smoothed)
+* `tfMRI_EMOTION_RL.nii.gz` (smoothed)
+* `SPM.mat` and associated files
 
+## Second Level Analysis and VOIs
+#### Script: `secondLevel.m`
+This simply compares Faces > Shapes without any covariates.
+
+Importantly, the resulting SPM whole-brain statistics are used to inform the next VOI extraction step by providing group coordinates for key areas (in this case, the IOG and FG).
+
+#### Script: `extractVOIs.m`
+The MNI masks used in this step (to extract activity in the superior colliculus and pulvinar) needed to be resliced to 2mm resolution, which is the same as the fMRI images. This can be done using the following FSL commands:
+
+```
+flirt -in mask.nii.gz -ref MNI152_T1_2mm.nii.gz -applyxfm -out resliced2mm_mask
+fslmaths resliced2mm_mask.nii.gz -bin resliced2mm_mask_bin
+```
+
+Any overlap between masks can also be removed using FSL:
+
+```
+fslmaths resliced2mm_mask1.nii.gz -mas resliced2mm_mask2.nii.gz overlap
+fslmaths overlap.nii.gz -bin overlap_bin
+fslmaths resliced2mm_mask1.nii.gz -sub overlap_bin.nii.gz resliced2mm_mask1_no-overlap.nii.gz
+```
+
+#### Script: `checkVOIs.m`
+This script serves two purposes:
+1. To check for any overlap across VOIs
+2. To summarise which subjects had activity significant at *p* <. 05 uncorrected within each VOI for each of the two sessions. This is displayed graphically. It determines which subjects can be entered into the DCM analysis.
 
 # DCM Analysis
 The aim of this stage was to investigate the probability of *a priori* defined neural networks (i.e. subcortical vs. cortical pathways to the amygdala). This served two purposes:
