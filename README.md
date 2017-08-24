@@ -291,7 +291,7 @@ Input:
 * `fear.txt` (onsets of face blocks)
 * `neut.txt` (onsets of shape blocks)
   * These files are located in the above directory in the `EVs` subdirectory
-  * Note that the script ignores the last block of each condition because they were not equal (due to an HCP error, the last half of the faces block is missing).
+  * Note that the script has an option to ignore the last block of each condition because they were not equal (due to an HCP error, the last half of the faces block is missing). I chose to include all available data (i.e. 2.5 blocks per condition).
   
 Output:
 * `tfMRI_EMOTION_LR.nii.gz` (smoothed)
