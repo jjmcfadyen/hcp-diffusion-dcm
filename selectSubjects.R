@@ -28,3 +28,10 @@ write.table(d$Subject, "subjectlist.txt", row.names = FALSE, col.names = FALSE)
 # Select a subset of 60 participants to be used in generating a population template
 subset <- sample_n(d,60)
 write.table(subset$Subject, "subsetlist.txt", row.names = FALSE, col.names = FALSE)
+
+# Use Mother ID to determine which subjects are related
+family <- d[,c(1,551:555)]
+Siblings <- family[(rowSums(cbind(duplicated(family$Father_ID) | duplicated(family$Father_ID, fromLast = TRUE),
+                                  duplicated(family$Mother_ID) | duplicated(family$Mother_ID, fromLast = TRUE))) == 2),]
+Siblings <- Siblings[order(Siblings$Mother_ID),]
+write.table(Siblings,"siblings.txt")
