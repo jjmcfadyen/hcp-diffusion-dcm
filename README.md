@@ -42,7 +42,9 @@
 
 # About
 ### The Project
-This project is the second experiment for my PhD at the Queensland Brain Institute in collaboration with my supervisors Dr Marta Garrido and Professor Jason Mattingley.
+This project is the second experiment for my PhD at the Queensland Brain Institute in collaboration with my supervisors Dr Marta Garrido and Professor Jason Mattingley. It has now been published in eLife: https://doi.org/10.7554/eLife.40766
+
+McFadyen, J., Mattingley, J. B., & Garrido, M. I. (2019). An afferent white matter pathway from the pulvinar to the amygdala facilitates fear recognition. eLife, 8, e40766.
 
 Our research question was, 'What evidence is there for a structural subcortical route to the amygdala in humans?'
 
